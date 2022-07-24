@@ -1,7 +1,5 @@
 ## 第二章 套接字类型与协议设置
 
-本章代码，在[TCP-IP-NetworkNote](https://github.com/riba2534/TCP-IP-NetworkNote)中可以找到，直接点连接可能进不去。
-
 本章仅需了解创建套接字时调用的 socket 函数。
 
 ### 2.1 套接字协议及数据传输特性
@@ -99,8 +97,8 @@ int udp_socket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 需要对第一章的代码做出修改，修改好的代码如下：
 
-- [tcp_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch02/tcp_client.c)
-- [tcp_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch02/tcp_server.c)
+- [tcp_client.c](./tcp_client.c)
+- [tcp_server.c](./tcp_server.c)
 
 编译：
 
@@ -124,35 +122,3 @@ Function read call count: 13
 ```
 
 从运行结果可以看出服务端发送了13字节的数据，客户端调用13次 read 函数进行读取。
-
-### 2.2 Windows 平台下的实现及验证
-
-暂略
-
-### 2.3 习题
-
-1. 什么是协议？在收发数据中定义协议有何意义？
-
-   > 答：协议是对话中使用的通信规则，简言之，协议就是为了完成数据交换而定好的约定。在收发数据中定义协议，能够让计算机之间进行对话，以此来实现信息交换和资源共享。
-
-2. 面向连接的套接字 TCP 套接字传输特性有 3 点，请分别说明。
-
-   > 答：①传输过程中数据不会消失②按序传输数据③传输的数据不存在数据边界（Boundary）
-
-3. 下面那些是面向消息的套接字的特性？
-
-   - **传输数据可能丢失**
-   - 没有数据边界（Boundary）
-   - **以快速传递为目标**
-   - 不限制每次传输数据大小
-   - **与面向连接的套接字不同，不存在连接概念**
-
-4. 下列数据适合用哪类套接字进行传输？
-
-   - 演唱会现场直播的多媒体数据（UDP）
-   - 某人压缩过的文本文件（TCP）
-   - 网上银行用户与银行之间的数据传递（TCP）
-
-5. 何种类型的套接字不存在数据边界？这类套接字接收数据时应该注意什么？
-
-   > 答：TCP 不存在数据边界。在接收数据时，需要保证在接收套接字的缓冲区填充满之时就从buffer里读取数据。也就是，在接收套接字内部，写入buffer的速度要小于读出buffer的速度。
