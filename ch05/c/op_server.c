@@ -8,6 +8,7 @@
 #define OPSZ 4
 void error_handling(char *message);
 int calculate(int opnum, int opnds[], char oprator);
+
 int main(int argc, char *argv[])
 {
     int serv_sock, clnt_sock;
@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
     close(serv_sock);
     return 0;
 }
+
 int calculate(int opnum, int opnds[], char op)
 {
     int result = opnds[0], i;
@@ -75,6 +77,7 @@ int calculate(int opnum, int opnds[], char op)
     }
     return result;
 }
+
 void error_handling(char *message)
 {
     fputs(message, stderr);
