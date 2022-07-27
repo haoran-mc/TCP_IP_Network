@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
         printf("Usage : %s <port>\n", argv[0]);
         exit(1);
     }
-    //调用 socket 函数创建套接字
+
+    // 1. 调用 socket 函数创建套接字
     serv_sock = socket(PF_INET, SOCK_STREAM, 0);
     if (serv_sock == -1)
         error_handling("socket() error");
@@ -31,19 +32,22 @@ int main(int argc, char *argv[])
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(atoi(argv[1]));
-    //调用 bind 函数分配ip地址和端口号
+
+    // 2. 调用 bind 函数分配ip地址和端口号
     if (bind(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1)
         error_handling("bind() error");
-    //调用 listen 函数将套接字转为可接受连接状态
+
+    // 3. 调用 listen 函数将套接字转为可接受连接状态
     if (listen(serv_sock, 5) == -1)
         error_handling("listen() error");
 
     clnt_addr_size = sizeof(clnt_addr);
-    //调用 accept 函数受理连接请求。如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止
+    // 4. 调用 accept 函数受理连接请求。如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止
     clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_addr, &clnt_addr_size);
     if (clnt_sock == -1)
         error_handling("accept() error");
-    //稍后要将介绍的 write 函数用于传输数据，若程序经过 accept 这一行执行到本行，则说明已经有了连接请求
+
+    // 稍后要将介绍的 write 函数用于传输数据，若程序经过 accept 这一行执行到本行，则说明已经有了连接请求
     write(clnt_sock, message, sizeof(message));
     close(clnt_sock);
     close(serv_sock);
