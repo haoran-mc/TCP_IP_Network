@@ -1,7 +1,5 @@
 ## 第 6 章 基于 UDP 的服务端/客户端
 
-本章代码，在[TCP-IP-NetworkNote](https://github.com/riba2534/TCP-IP-NetworkNote)中可以找到。
-
 TCP 是内容较多的一个协议，而本章中的 UDP 内容较少，但是也很重要。
 
 ### 6.1 理解 UDP
@@ -18,7 +16,7 @@ TCP 与 UDP 的区别很大一部分来源于流控制。也就是说 TCP 的生
 
 如图所示：
 
-![](https://i.loli.net/2019/01/17/5c3fd29c70bf2.png)
+![](./01.png)
 
 从图中可以看出，IP 的作用就是让离开主机 B 的 UDP 数据包准确传递到主机 A 。但是把 UDP 数据包最终交给主机 A 的某一 UDP 套接字的过程是由 UDP 完成的。UDP 的最重要的作用就是根据端口号将传到主机的数据包交付给最终的 UDP 套接字。
 
@@ -41,7 +39,7 @@ UDP 中的服务端和客户端不像 TCP 那样在连接状态下交换数据�
 
 TCP 中，套接字之间应该是一对一的关系。若要向 10 个客户端提供服务，除了守门的服务器套接字之外，还需要 10 个服务器套接字。但在 UDP 中，不管是服务器端还是客户端都只需要 1 个套接字。只需要一个 UDP 套接字就可以向任意主机传输数据，如图所示：
 
-![](https://i.loli.net/2019/01/17/5c3fd703f3c40.png)
+![](./02.png)
 
 图中展示了 1 个 UDP 套接字与 2 个不同主机交换数据的过程。也就是说，只需 1 个 UDP 套接字就能和多台主机进行通信。
 
@@ -89,8 +87,8 @@ addrlen: 保存参数 from 的结构体变量长度的变量地址值。
 
 代码：
 
-- [uecho_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_client.c)
-- [uecho_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_server.c)
+- [uecho_client.c](./uecho_client.c)
+- [uecho_server.c](./uecho_server.c)
 
 编译运行：
 
@@ -103,7 +101,7 @@ gcc uecho_server.c -o userver
 
 结果：
 
-![](https://i.loli.net/2019/01/17/5c3feb85baa83.png)
+![](./03.png)
 
 TCP 客户端套接字在调用 connect 函数时自动分配IP地址和端口号，既然如此，UDP 客户端何时分配IP地址和端口号？
 
@@ -123,8 +121,8 @@ UDP 程序中，调用 sendto 函数传输数据前应该完成对套接字的�
 
 相反，UDP 是具有数据边界的下一，传输中调用 I/O 函数的次数非常重要。因此，输入函数的调用次数和输出函数的调用次数应该完全一致，这样才能保证接收全部已经发送的数据。例如，调用 3 次输出函数发送的数据必须通过调用 3 次输入函数才能接收完。通过一个例子来进行验证：
 
-- [bound_host1.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/bound_host1.c)
-- [bound_host2.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/bound_host2.c)
+- [bound_host1.c](./bound_host1.c)
+- [bound_host2.c](./bound_host2.c)
 
 编译运行：
 
@@ -137,7 +135,7 @@ gcc bound_host2.c -o host2
 
 运行结果：
 
-![](https://i.loli.net/2019/01/17/5c3ff966a8d34.png)
+![](./04.png)
 
 host1 是服务端，host2 是客户端，host2 一次性把数据发给服务端后，结束程序。但是因为服务端每隔五秒才接收一次，所以服务端每隔五秒接收一次消息。
 
@@ -170,48 +168,10 @@ connect(sock, (struct sockaddr *)&adr, sizeof(adr));
 
 之后就与 TCP 套接字一致，每次调用 sendto 函数时只需传递信息数据。因为已经指定了收发对象，所以不仅可以使用 sendto、recvfrom 函数，还可以使用 write、read 函数进行通信。
 
-下面的例子把之前的 [uecho_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_client.c) 程序改成了基于已连接 UDP 的套接字的程序，因此可以结合 [uecho_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_server.c) 程序运行。代码如下：
+下面的例子把之前的 [uecho_client.c](./uecho_client.c) 程序改成了基于已连接 UDP 的套接字的程序，因此可以结合 [uecho_server.c](./uecho_server.c) 程序运行。代码如下：
 
-- [uecho_con_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_con_client.c)
+- [uecho_con_client.c](./uecho_con_client.c)
 
 编译运行过程与上面一样，故省略。
 
 上面的代码中用 write、read 函数代替了 sendto、recvfrom 函数。
-
-### 6.4 基于 Windows 的实现
-
-暂略
-
-### 6.5 习题
-
-> 以下答案仅代表本人个人观点，可能不是正确答案。
-
-1. **UDP 为什么比 TCP 快？为什么 TCP 传输可靠而 TCP 传输不可靠？**
-
-   答：为了提供可靠的数据传输服务，TCP 在不可靠的IP层进行流控制，而 UDP 缺少这种流控制。所以 UDP 是不可靠的连接。
-
-2. **下面不属于 UDP 特点的是？**
-
-   下面加粗的代表此句话正确
-
-   1. **UDP 不同于 TCP ，不存在连接概念，所以不像 TCP 那样只能进行一对一的数据传输。**
-   2. 利用 UDP 传输数据时，如果有 2 个目标，则需要 2 个套接字。
-   3. UDP 套接字中无法使用已分配给 TCP 的同一端口号
-   4. **UDP 套接字和 TCP 套接字可以共存。若需要，可以同时在同一主机进行 TCP 和 UDP 数据传输。**
-   5. 针对 UDP 函数也可以调用 connect 函数，此时 UDP 套接字跟 TCP 套接字相同，也需要经过 3 次握手阶段。
-
-3. **UDP 数据报向对方主机的 UDP 套接字传递过程中，IP 和 UDP 分别负责哪些部分？**
-
-   答：IP的作用就是让离开主机的 UDP 数据包准确传递到另一个主机。但把 UDP 包最终交给主机的某一 UDP 套接字的过程则是由 UDP 完成的。UDP 的最重要的作用就是根据端口号将传到主机的数据包交付给最终的 UDP 套接字。
-
-4. **UDP 一般比 TCP 快，但根据交换数据的特点，其差异可大可小。请你说明何种情况下 UDP 的性能优于 TCP？**
-
-   答：如果收发数据量小但需要频繁连接时，UDP 比 TCP 更高效。
-
-5. **客户端 TCP 套接字调用 connect 函数时自动分配IP和端口号。UDP 中不调用 bind 函数，那何时分配IP和端口号？**
-
-   答：在首次调用 sendto 函数时自动给相应的套接字分配IP和端口号。而且此时分配的地址一直保留到程序结束为止。
-
-6. **TCP 客户端必须调用 connect 函数，而 UDP 可以选择性调用。请问，在 UDP 中调用 connect 函数有哪些好处？** 
-
-   答：要与同一个主机进行长时间通信时，将 UDP 套接字变成已连接套接字会提高效率。因为三个阶段中，第一个阶段和第三个阶段占用了一大部分时间，调用 connect 函数可以节省这些时间。
