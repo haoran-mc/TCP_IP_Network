@@ -1,7 +1,5 @@
 ## 第 8 章 域名及网络地址
 
-本章代码，在[TCP-IP-NetworkNote](https://github.com/riba2534/TCP-IP-NetworkNote)中可以找到。
-
 ### 8.1 域名系统
 
 DNS 是对IP地址和域名进行相互转换的系统，其核心是 DNS 服务器
@@ -14,7 +12,7 @@ DNS 是对IP地址和域名进行相互转换的系统，其核心是 DNS 服务
 
 相当于一个字典，可以查询出某一个域名对应的IP地址
 
-![](https://i.loli.net/2019/01/18/5c41854859ae3.png)
+![](./01.png)
 
 如图所示，显示了 DNS 服务器的查询路径。
 
@@ -59,11 +57,11 @@ struct hostent
 
 调用 gethostbyname 函数后，返回的结构体变量如图所示：
 
-![](https://i.loli.net/2019/01/18/5c41898ae45e8.png)
+![](./02.png)
 
 下面的代码通过一个例子来演示 gethostbyname 的应用，并说明 hostent 结构体变量特性。
 
-- [gethostbyname.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch08/gethostbyname.c)
+- [gethostbyname.c](./gethostbyname.c)
 
 编译运行：
 
@@ -74,7 +72,7 @@ gcc gethostbyname.c -o hostname
 
 结果：
 
-![](https://i.loli.net/2019/01/18/5c418faf20495.png)
+![](./04.png)
 
 如图所示，显示出了对百度的域名解析
 
@@ -98,7 +96,7 @@ inet_ntoa(*(struct in_addr *)host->h_addr_list[i])
 
 若只看 hostent 的定义，结构体成员 h_addr_list 指向字符串指针数组（由多个字符串地址构成的数组）。但是字符串指针数组保存的元素实际指向的是 in_addr 结构体变量中地址值而非字符串，也就是说`(struct in_addr *)host->h_addr_list[i]`其实是一个指针，然后用`*`符号取具体的值。如图所示：
 
-![](https://i.loli.net/2019/01/18/5c419658a73b8.png)
+![](./03.png)
 
 #### 8.2.3 利用IP地址获取域名
 
@@ -117,7 +115,7 @@ family: 传递地址族信息，ipv4 是 AF_INET ，IPV6是 AF_INET6
 
 下面的代码演示使用方法：
 
-- [gethostbyaddr.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch08/gethostbyaddr.c)
+- [gethostbyaddr.c](./gethostbyaddr.c)
 
 编译运行：
 
@@ -128,33 +126,6 @@ gcc gethostbyaddr.c -o hostaddr
 
 结果：
 
-![](https://i.loli.net/2019/01/18/5c41a019085d4.png)
+![](./05.png)
 
 从图上可以看出，`8.8.8.8`这个IP地址是谷歌的。
-
-### 8.3 基于 Windows 的实现
-
-暂略
-
-### 8.4 习题
-
-> 以下答案仅代表本人个人观点，可能不是正确答案。
-
-1. **下列关于DNS的说法错误的是？**
-
-   答：字体加粗的表示正确答案。
-
-   1. **因为DNS从存在，故可以使用域名代替IP**
-   2. DNS服务器实际上是路由器，因为路由器根据域名决定数据的路径
-   3. **所有域名信息并非集中与 1 台 DNS 服务器，但可以获取某一 DNS 服务器中未注册的所有地址**
-   4. DNS 服务器根据操作系统进行区分，Windows 下的 DNS 服务器和 Linux 下的 DNS 服务器是不同的。
-
-2. **阅读如下对话，并说明东秀的方案是否可行。（因为对话的字太多，用图代替）**
-
-   ![](https://i.loli.net/2019/01/18/5c41a22f35390.png)
-
-   答：答案就是可行，DNS 服务器是分布式的，一台坏了可以找其他的。
-
-3. **在浏览器地址输入 www.orentec.co.kr ，并整理出主页显示过程。假设浏览器访问默认 DNS 服务器中并没有关于 www.orentec.co.kr 的地址信息.**
-
-   答：可以参考一下知乎回答，[在浏览器地址栏输入一个URL后回车，背后会进行哪些技术步骤？](https://www.zhihu.com/question/34873227/answer/518086565),我用我自己的理解，简单说一下，首先会去向上一级的 DNS 服务器去查询，通过这种方式逐级向上传递信息，一直到达根服务器时，它知道应该向哪个 DNS 服务器发起询问。向下传递解析请求，得到IP地址候原路返回，最后会将解析的IP地址传递到发起请求的主机。
