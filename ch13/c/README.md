@@ -1,12 +1,10 @@
 ## 第 13 章 多种 I/O 函数
 
-本章代码，在[TCP-IP-NetworkNote](https://github.com/riba2534/TCP-IP-NetworkNote)中可以找到。
-
 ### 13.1 send & recv 函数
 
 #### 13.1.1 Linux 中的 send & recv
 
-首先看 sned 函数定义：
+首先看 send 函数定义：
 
 ```c
 #include <sys/socket.h>
@@ -50,8 +48,8 @@ send & recv 函数的可选项意义：
 
 MSG_OOB 可选项用于创建特殊发送方法和通道以发送紧急消息。下面为 MSG_OOB 的示例代码：
 
-- [oob_recv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch13/oob_recv.c)
-- [oob_send.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch13/oob_send.c)
+- [oob_recv.c](./oob_recv.c)
+- [oob_send.c](./oob_send.c)
 
 编译运行：
 
@@ -62,11 +60,9 @@ gcc oob_recv.c -o recv
 
 运行结果：
 
-![](https://i.loli.net/2019/01/26/5c4bda167ae08.png)
+![](./01.png)
 
-![](https://i.loli.net/2019/01/26/5c4bdb4d99823.png)
-
-从运行结果可以看出，send 是客户端，recv 是服务端，客户端给服务端发送消息，服务端接收完消息之后显示出来。可以从图中看出，每次运行的效果，并不是一样的。
+连续运行了三次客户端服务端。可以从图中看出，每次运行的效果，并不是一样的。
 
 代码中关于:
 
@@ -94,7 +90,7 @@ fcntl(recv_sock, F_SETOWN, getpid());
 
 MSG_OOB 的真正意义在于督促数据接收对象尽快处理数据。这是紧急模式的全部内容，而 TCP 「保持传输顺序」的传输特性依然成立。TCP 的紧急消息无法保证及时到达，但是可以要求急救。下面是 MSG_OOB 可选项状态下的数据传输过程，如图：
 
-![](https://i.loli.net/2019/01/26/5c4be222845cc.png)
+![](./02.png)
 
 上面是:
 
@@ -108,7 +104,7 @@ send(sock, "890", strlen("890"), MSG_OOB);
 
 也就是说，实际上只用了一个字节表示紧急消息。这一点可以通过图中用于传输数据的 TCP 数据包（段）的结构看得更清楚，如图：
 
-![](https://i.loli.net/2019/01/26/5c4beeae46b4e.png)
+![](./03.png)
 
 TCP 数据包实际包含更多信息。TCP 头部包含如下两种信息：
 
@@ -123,8 +119,8 @@ TCP 数据包实际包含更多信息。TCP 头部包含如下两种信息：
 
 同时设置 MSG_PEEK 选项和 MSG_DONTWAIT 选项，以验证输入缓冲是否存在接收的数据。设置 MSG_PEEK 选项并调用 recv 函数时，即使读取了输入缓冲的数据也不会删除。因此，该选项通常与 MSG_DONTWAIT 合作，用于调用以非阻塞方式验证待读数据存与否的函数。下面的示例是二者的含义：
 
-- [peek_recv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch13/peek_recv.c)
-- [peek_send.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch13/peek_send.c)
+- [peek_recv.c](./peek_recv.c)
+- [peek_send.c](./peek_send.c)
 
 编译运行：
 
@@ -137,7 +133,7 @@ gcc peek_send.c -o send
 
 结果：
 
-![](https://i.loli.net/2019/01/26/5c4c0d1dc83af.png)
+![](./04.png)
 
 可以通过结果验证，仅发送了一次的数据被读取了 2 次，因为第一次调用 recv 函数时设置了 MSG_PEEK 可选项。
 
@@ -174,13 +170,13 @@ struct iovec
 
 下图是该函数的使用方法：
 
-![](https://i.loli.net/2019/01/26/5c4c61b07d207.png)
+![](./05.png)
 
 writev 的第一个参数，是文件描述符，因此向控制台输出数据，ptr 是存有待发送数据信息的 iovec 数组指针。第三个参数为 2，因此，从 ptr 指向的地址开始，共浏览 2 个 iovec 结构体变量，发送这些指针指向的缓冲数据。
 
 下面是 writev 函数的使用方法：
 
-- [writev.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch13/writev.c)
+- [writev.c](./writev.c)
 
 ```c
 #include <stdio.h>
@@ -233,7 +229,7 @@ iovcnt: 向第二个参数传递数组长度
 
 下面是示例代码：
 
-- [readv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch13/readv.c)
+- [readv.c](./readv.c)
 
 ```c
 #include <stdio.h>
@@ -274,7 +270,7 @@ gcc readv.c -o rv
 
 运行结果：
 
-![](https://i.loli.net/2019/01/26/5c4c718555398.png)
+![](./06.png)
 
 从图上可以看出，首先截取了长度为 5 的数据输出，然后再输出剩下的。
 
@@ -284,30 +280,4 @@ gcc readv.c -o rv
 
 其意义在于减少数据包个数。假设为了提高效率在服务器端明确禁用了 Nagle 算法。其实 writev 函数在不采用 Nagle 算法时更有价值，如图：
 
-![](https://i.loli.net/2019/01/26/5c4c731323e19.png)
-
-### 13.3 基于 Windows 的实现
-
-暂略
-
-### 13.4 习题
-
-> 以下答案仅代表本人个人观点，可能不是正确答案。
->
-
-1. **下列关于 MSG_OOB 可选项的说法错误的是**？
-
-   答：以下加粗的字体代表说法正确。
-
-   1. MSG_OOB 指传输 Out-of-band 数据，是通过其他路径高速传输数据
-   2. MSG_OOB 指通过其他路径高速传输数据，因此 TCP 中设置该选项的数据先到达对方主机
-   3. **设置 MSG_OOB 是数据先到达对方主机后，以普通数据的形式和顺序读取。也就是说，只是提高了传输速度，接收方无法识别这一点**。
-   4. **MSG_OOB 无法脱离 TCP 的默认数据传输方式，即使脱离了 MSG_OOB ，也会保持原有的传输顺序。该选项只用于要求接收方紧急处理**。
-
-2. **利用 readv & writev 函数收发数据有何优点？分别从函数调用次数和 I/O 缓冲的角度给出说明**。
-
-   答：需要传输的数据分别位于不同缓冲（数组）时，需要多次调用 write 函数。此时可通过 1 次 writev 函数调用替代操作，当然会提高效率。同样，需要将输入缓冲中的数据读入不同位置时，可以不必多次调用 read 函数，而是利用 1 次 readv 函数就能大大提高效率。
-
-3. **通过 recv 函数验证输入缓冲中是否存在数据时（确认后立即返回时），如何设置 recv 函数最后一个参数中的可选项？分别说明各可选项的含义**。
-
-   答：使用 MSG_PEEK 来验证输入缓冲中是否存在待接收的数据。各个可选项的意义参见上面对应章节的表格。
+![](./07.png)
