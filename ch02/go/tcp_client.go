@@ -15,7 +15,7 @@ func main() {
 
 	idx, read_len, str_len := 0, 0, 0
 
-	conn, err := net.Dial("tcp4", string(os.Args[1])+":"+string(os.Args[2]))
+	conn, err := net.Dial("tcp4", os.Args[1]+":"+os.Args[2])
 	checkError(err)
 
 	// 每次只接收一个字符

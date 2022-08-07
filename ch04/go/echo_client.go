@@ -13,7 +13,7 @@ func main() {
 	var str_len int
 
 	if len(os.Args) != 3 {
-		fmt.Fprintf(os.Stderr, "Usage: %s <ip> <port> ", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s ip port ", os.Args[0])
 		os.Exit(1)
 	}
 
