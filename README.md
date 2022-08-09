@@ -29,3 +29,13 @@
 | 优于select的epoll           | [ch17](./ch17/c/) | [ch17](./ch17/go/) |
 | 多线程服务器端的实现        | [ch18](./ch18/c/) | [ch18](./ch18/go/) |
 | 制作HTTP服务器端            | [ch24](./ch24/c/) | [ch24](./ch24/go/) |
+
+```shell
+sudo apt install git-lfs
+git lfs install
+git lfs track "*.pdf"
+git add .gitattributes
+git add TCP\&IP网络编程.pdf
+git commit -m ""
+git push
+```
