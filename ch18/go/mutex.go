@@ -8,7 +8,7 @@ import (
 const NUM_THREAD int = 100
 
 var num int = 0
-var mutex sync.Mutex //
+var mutex sync.Mutex
 
 func main() {
 	var wg sync.WaitGroup

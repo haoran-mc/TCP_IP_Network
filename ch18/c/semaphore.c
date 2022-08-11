@@ -32,9 +32,9 @@ void *read(void *arg)
     {
         fputs("Input num: ", stdout);
 
-        sem_wait(&sem_two);
+        sem_wait(&sem_two); // two--
         scanf("%d", &num);
-        sem_post(&sem_one);
+        sem_post(&sem_one); // one++
     }
     return NULL;
 }
@@ -43,9 +43,9 @@ void *accu(void *arg)
     int sum = 0, i;
     for (i = 0; i < 5; i++)
     {
-        sem_wait(&sem_one);
+        sem_wait(&sem_one); // one--
         sum += num;
-        sem_post(&sem_two);
+        sem_post(&sem_two); // two++
     }
     printf("Result: %d \n", sum);
     return NULL;

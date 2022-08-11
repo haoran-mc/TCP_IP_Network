@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1)
         error_handling("connect() error");
 
-    pthread_create(&snd_thread, NULL, send_msg, (void *)&sock); //创建发送消息线程
-    pthread_create(&rcv_thread, NULL, recv_msg, (void *)&sock); //创建接受消息线程
+    pthread_create(&snd_thread, NULL, send_msg, (void *)&sock); // 创建发送消息线程
+    pthread_create(&rcv_thread, NULL, recv_msg, (void *)&sock); // 创建接收消息线程
     pthread_join(snd_thread, &thread_return);
     pthread_join(rcv_thread, &thread_return);
     close(sock);
