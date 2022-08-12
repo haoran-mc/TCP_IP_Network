@@ -38,16 +38,16 @@ int main(int argc, char *argv[])
     if (listen(serv_sock, 5) == -1)
         error_handling("listen() error");
 
-    epfd = epoll_create(EPOLL_SIZE); //可以忽略这个参数，填入的参数为操作系统参考
+    epfd = epoll_create(EPOLL_SIZE); // 可以忽略这个参数，填入的参数为操作系统参考
     ep_events = malloc(sizeof(struct epoll_event) * EPOLL_SIZE);
 
-    event.events = EPOLLIN; //需要读取数据的情况
+    event.events = EPOLLIN; // 需要读取数据的情况
     event.data.fd = serv_sock;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, serv_sock, &event); //例程epfd 中添加文件描述符 serv_sock，目的是监听 enevt 中的事件
+    epoll_ctl(epfd, EPOLL_CTL_ADD, serv_sock, &event); // 例程epfd 中添加文件描述符 serv_sock，目的是监听 enevt 中的事件
 
     while (1)
     {
-        event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1); //获取改变了的文件描述符，返回数量
+        event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1); // 获取改变了的文件描述符，返回数量
         if (event_cnt == -1)
         {
             puts("epoll_wait() error");
@@ -57,25 +57,25 @@ int main(int argc, char *argv[])
         puts("return epoll_wait");
         for (i = 0; i < event_cnt; i++)
         {
-            if (ep_events[i].data.fd == serv_sock) //客户端请求连接时
+            if (ep_events[i].data.fd == serv_sock) // serv_sock 出现事件（也就是客户端请求连接）时
             {
                 adr_sz = sizeof(clnt_adr);
                 clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &adr_sz);
                 event.events = EPOLLIN;
-                event.data.fd = clnt_sock; //把客户端套接字添加进去
+                event.data.fd = clnt_sock; // 把客户端套接字添加进去
                 epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
                 printf("connected client : %d \n", clnt_sock);
             }
-            else //是客户端套接字时
+            else // 是客户端套接字出现事件（也就是客户发送请求了）时
             {
                 str_len = read(ep_events[i].data.fd, buf, BUF_SIZE);
-                if (str_len == 0)
+                if (str_len == 0) // 如果没有收到客户发送的信息，说明客户端请求断开连接
                 {
-                    epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL); //从epoll中删除套接字
+                    epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL); // 从epoll中删除套接字
                     close(ep_events[i].data.fd);
                     printf("closed client : %d \n", ep_events[i].data.fd);
                 }
-                else
+                else // 回声
                 {
                     write(ep_events[i].data.fd, buf, str_len);
                 }

@@ -1,19 +1,17 @@
 ## 第 17 章 优于 select 的 epoll
 
-本章代码，在[TCP-IP-NetworkNote](https://github.com/riba2534/TCP-IP-NetworkNote)中可以找到。
-
 ### 17.1 epoll 理解及应用
 
-select 复用方法由来已久，因此，利用该技术后，无论如何优化程序性能也无法同时介入上百个客户端。这种 select 方式并不适合以 web 服务器端开发为主流的现代开发环境，所以需要学习 Linux 环境下的 epoll
+select 复用方法由来已久，因此，利用该技术后，无论如何优化程序性能也无法同时介入上百个客户端。这种 select 方式并不适合以 web 服务器端开发为主流的现代开发环境，所以需要学习 Linux 环境下的 epoll。
 
 #### 17.1.1 基于 select 的 I/O 复用技术速度慢的原因
 
 第 12 章实现了基于 select 的 I/O 复用技术服务端，其中有不合理的设计如下：
 
-- 调用 select 函数后常见的针对所有文件描述符的循环语句
-- 每次调用 select 函数时都需要向该函数传递监视对象信息
+- 调用 select 函数后常见的针对所有文件描述符的循环语句；
+- 每次调用 select 函数时都需要向该函数传递监视对象信息；
 
-上述两点可以从 [echo_selectserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch12/echo_selectserv.c) 得到确认，调用 select 函数后，并不是把发生变化的文件描述符单独集中在一起，而是通过作为监视对象的 fd_set 变量的变化，找出发生变化的文件描述符（54,56行），因此无法避免针对所有监视对象的循环语句。而且，作为监视对象的 fd_set 会发生变化，所以调用 select 函数前应该复制并保存原有信息，并在每次调用 select 函数时传递新的监视对象信息。
+上述两点可以从 [echo_selectserv.c](../../ch12/c/echo_selectserv.c) 得到确认，调用 select 函数后，并不是把发生变化的文件描述符单独集中在一起，而是通过作为监视对象的 fd_set 变量的变化，找出发生变化的文件描述符（54,56行），因此无法避免针对所有监视对象的循环语句。而且，作为监视对象的 fd_set 会发生变化，所以调用 select 函数前应该复制并保存原有信息，并在每次调用 select 函数时传递新的监视对象信息。
 
 select 性能上最大的弱点是：每次传递监视对象信息，准确的说，select 是监视套接字变化的函数。而套接字是操作系统管理的，所以 select 函数要借助操作系统才能完成功能。select 函数的这一缺点可以通过如下方式弥补：
 
@@ -21,25 +19,25 @@ select 性能上最大的弱点是：每次传递监视对象信息，准确的�
 
 这样就无需每次调用 select 函数时都想操作系统传递监视对象信息，但是前提操作系统支持这种处理方式。Linux 的支持方式是 epoll ，Windows 的支持方式是 IOCP。
 
-#### 17.1.2 select 也有有点
+#### 17.1.2 select 也有优点
 
 select 的兼容性比较高，这样就可以支持很多的操作系统，不受平台的限制，使用 select 函数满足以下两个条件：
 
-- 服务器接入者少
-- 程序应该具有兼容性
+- 服务器接入者少；
+- 程序应该具有兼容性；
 
 #### 17.1.3 实现 epoll 时必要的函数和结构体
 
 能够克服 select 函数缺点的 epoll 函数具有以下优点，这些优点正好与之前的 select 函数缺点相反。
 
-- 无需编写以监视状态变化为目的的针对所有文件描述符的循环语句
-- 调用对应于 select 函数的 epoll_wait 函数时无需每次传递监视对象信息。
+- 无需编写以监视状态变化为目的的针对所有文件描述符的循环语句；
+- 调用对应于 select 函数的 epoll_wait 函数时无需每次传递监视对象信息；
 
 下面是 epoll 函数的功能：
 
-- epoll_create：创建保存 epoll 文件描述符的空间
-- epoll_ctl：向空间注册并注销文件描述符
-- epoll_wait：与 select 函数类似，等待文件描述符发生变化
+- epoll_create：创建保存 epoll 文件描述符的空间；
+- epoll_ctl：向空间注册并注销文件描述符；
+- epoll_wait：与 select 函数类似，等待文件描述符发生变化；
 
 select 函数中为了保存监视对象的文件描述符，直接声明了 fd_set 变量，但 epoll 方式下的操作系统负责保存监视对象文件描述符，因此需要向操作系统请求创建保存文件描述符的空间，此时用的函数就是 epoll_create 。
 
@@ -186,9 +184,9 @@ event_cnt=epoll_wait(epfd,ep_events,EPOLL_SIZE,-1);
 
 #### 17.1.7 基于 epoll 的回声服务器端
 
-下面是回声服务器端的代码（修改自第 12 章 [echo_selectserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch12/echo_selectserv.c)）：
+下面是回声服务器端的代码（修改自第 12 章 [echo_selectserv.c](../../ch12/c/echo_selectserv.c)）：
 
-- [echo_epollserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch17/echo_epollserv.c)
+- [echo_epollserv.c](./echo_epollserv.c)
 
 编译运行：
 
@@ -199,7 +197,7 @@ gcc echo_epollserv.c -o serv
 
 运行结果：
 
-![](https://i.loli.net/2019/02/01/5c53f5b6d4acf.png)
+![](./01.png)
 
 可以看出运行结果和以前 select 实现的和 fork 实现的结果一样，都可以支持多客户端同时运行。
 
@@ -207,15 +205,15 @@ gcc echo_epollserv.c -o serv
 
 总结一下 epoll 的流程：
 
-1.  epoll_create 创建一个保存 epoll 文件描述符的空间，可以没有参数
-2. 动态分配内存，给将要监视的 epoll_wait
-3. 利用 epoll_ctl 控制 添加 删除，监听事件
-4. 利用 epoll_wait 来获取改变的文件描述符,来执行程序
+1. epoll_create 创建一个保存 epoll 文件描述符的空间，可以没有参数；
+2. 动态分配内存，给将要监视的 epoll_wait；
+3. 利用 epoll_ctl 控制 添加 删除，监听事件；
+4. 利用 epoll_wait 来获取改变的文件描述符，来执行程序；
 
 select 和 epoll 的区别：
 
-- 每次调用 select 函数都会向操作系统传递监视对象信息，浪费大量时间
-- epoll 仅向操作系统传递一次监视对象，监视范围或内容发生变化时只通知发生变化的事项
+- 每次调用 select 函数都会向操作系统传递监视对象信息，浪费大量时间；
+- epoll 仅向操作系统传递一次监视对象，监视范围或内容发生变化时只通知发生变化的事项；
 
 ### 17.2 条件触发和边缘触发
 
@@ -235,9 +233,9 @@ select 和 epoll 的区别：
 
 #### 17.2.2 掌握条件触发的事件特性
 
-下面代码修改自 [echo_epollserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch17/echo_epollserv.c) 。epoll 默认以条件触发的方式工作，因此可以通过该示例验证条件触发的特性。
+下面代码修改自 [echo_epollserv.c](./echo_epollserv.c) 。epoll 默认以条件触发的方式工作，因此可以通过该示例验证条件触发的特性。
 
-- [echo_EPLTserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch17/echo_EPLTserv.c)
+- [echo_EPLTserv.c](./echo_EPLTserv.c)
 
 上面的代码把调用 read 函数时使用的缓冲大小缩小到了 4 个字节，插入了验证 epoll_wait 调用次数的验证函数。减少缓冲大小是为了阻止服务器端一次性读取接收的数据。换言之，调用 read 函数后，输入缓冲中仍有数据要读取，而且会因此注册新的事件并从 epoll_wait 函数返回时将循环输出「return epoll_wait」字符串。
 
@@ -250,19 +248,19 @@ gcc echo_EPLTserv.c -o serv
 
 运行结果：
 
-![](https://i.loli.net/2019/02/01/5c540825ae415.png)
+![](./02.png)
 
-从结果可以看出，每当收到客户端数据时，都回注册该事件，并因此调用 epoll_wait 函数。
+从结果可以看出，每当收到客户端数据时，都会注册该事件，并因此调用 epoll_wait 函数。
 
 下面的代码是修改后的边缘触发方式的代码，仅仅是把上面的代码改为：
 
 ```c
- event.events = EPOLLIN | EPOLLET;
+event.events = EPOLLIN | EPOLLET;
 ```
 
 代码：
 
-- [echo_EDGEserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch17/echo_EDGEserv.c)
+- [echo_EDGEserv.c](./echo_EDGEserv.c)
 
 编译运行：
 
@@ -273,7 +271,7 @@ gcc echo_EDGEserv.c -o serv
 
 结果：
 
-![](https://i.loli.net/2019/02/01/5c54097b6469f.png)
+![](./03.png)
 
 从上面的例子看出，接收到客户端的消息时，只输出一次「return epoll_wait」字符串，这证明仅注册了一次事件。
 
@@ -281,7 +279,7 @@ gcc echo_EDGEserv.c -o serv
 
 #### 17.2.3 边缘触发的服务器端必知的两点
 
-- 通过 errno 变量验证错误原因
+- 通过 errno 变量验证错误原因；
 - 为了完成非阻塞（Non-blocking）I/O ，更改了套接字特性。
 
 Linux 套接字相关函数一般通过 -1 通知发生了错误。虽然知道发生了错误，但仅凭这些内容无法得知产生错误的原因。因此，为了在发生错误的时候提额外的信息，Linux 声明了如下全局变量：
@@ -327,7 +325,7 @@ fcntl(fd,F_SETFL | O_NONBLOCK)
 
 下面是以边缘触发方式工作的回声服务端代码：
 
-- [echo_EPETserv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch17/echo_EPETserv.c)
+- [echo_EPETserv.c](./echo_EPETserv.c)
 
 编译运行：
 
@@ -338,7 +336,7 @@ gcc echo_EPETserv.c -o serv
 
 结果：
 
-![](https://i.loli.net/2019/02/01/5c542149c0cee.png)
+![](./04.png)
 
 #### 17.2.5 条件触发和边缘触发孰优孰劣
 
@@ -348,7 +346,7 @@ gcc echo_EPETserv.c -o serv
 
 下面是边缘触发的图
 
-![](https://i.loli.net/2019/02/01/5c5421e3b3f2b.png)
+![](./05.png)
 
 运行流程如下：
 
@@ -368,31 +366,3 @@ gcc echo_EPETserv.c -o serv
 - 服务端已经接收到数据，但是要接收数据的目标客户端并没有连接到服务器端。
 
 因此，即使输入缓冲收到数据，服务器端也能决定读取和处理这些数据的时间点，这样就给服务器端的实现带来很大灵活性。
-
-### 17.3 习题
-
-> 以下答案仅代表本人个人观点，可能不是正确答案。
-
-1. 利用 select 函数实现服务器端时，代码层面存在的两个缺点是？
-
-   答：①调用 select 函数后常见的针对所有文件描述符的循环语句②每次调用 select 函数时都要传递监视对象信息。
-
-2. 无论是 select 方式还是 epoll 方式，都需要将监视对象文件描述符信息通过函数调用传递给操作系统。请解释传递该信息的原因。
-
-   答：文件描述符是由操作系统管理的，所以必须要借助操作系统才能完成。
-
-3. select 方式和 epoll 方式的最大差异在于监视对象文件描述符传递给操作系统的方式。请说明具体差异，并解释为何存在这种差异。
-
-   答：select 函数每次调用都要传递所有的监视对象信息，而 epoll 函数仅向操作系统传递 1 次监视对象，监视范围或内容发生变化时只通知发生变化的事项。select 采用这种方法是为了保持兼容性。
-
-4. 虽然 epoll 是 select 的改进方案，但 select 也有自己的优点。在何种情况下使用 select 更加合理。
-
-   答：①服务器端接入者少②程序应具有兼容性。
-
-5. epoll 是以条件触发和边缘触发方式工作。二者有何差别？从输入缓冲的角度说明这两种方式通知事件的时间点差异。
-
-   答：在条件触发中，只要输入缓冲有数据，就会一直通知该事件。边缘触发中输入缓冲收到数据时仅注册 1 次该事件，即使输入缓冲中还留有数据，也不会再进行注册。
-
-6. 采用边缘触发时可以分离数据的接收和处理时间点。请说明其优点和原因。
-
-   答：分离接收数据和处理数据的时间点，给服务端的实现带来很大灵活性。
