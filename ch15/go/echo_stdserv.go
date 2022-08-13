@@ -33,7 +33,7 @@ func main() {
 		fmt.Printf("Connect client %d \n", i+1)
 
 		tcpConn, _ := conn.(*net.TCPConn)
-		fp, _ := tcpConn.File() // 获取 tcp 链接对应的 os.File
+		fp, _ := tcpConn.File() // 获取 tcp 链接对应的 os.File 结构体指针
 		reader := bufio.NewReader(fp)
 		writer := bufio.NewWriter(fp)
 

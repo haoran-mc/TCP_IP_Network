@@ -12,7 +12,7 @@ DNS 是对IP地址和域名进行相互转换的系统，其核心是 DNS 服务
 
 相当于一个字典，可以查询出某一个域名对应的IP地址
 
-![](./01.png)
+![](./images/01.png)
 
 如图所示，显示了 DNS 服务器的查询路径。
 
@@ -45,7 +45,7 @@ go run ./gethostbyname.go www.baidu.com
 
 结果：
 
-![](./02.png)
+![](./images/02.png)
 
 #### 利用 IP 地址获取域名
 
@@ -66,6 +66,6 @@ go run gethostbyaddr.go 8.8.8.8
 
 结果：
 
-![](./03.png)
+![](./images/03.png)
 
 从图上可以看出，`8.8.8.8`这个IP地址是谷歌的。

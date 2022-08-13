@@ -23,7 +23,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	filename := "receive.go"
+	filename := "receive.txt"
 	var fp *os.File
 
 	if checkFileIsExist(filename) { // 判断文件是否存在

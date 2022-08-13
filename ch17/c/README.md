@@ -197,7 +197,7 @@ gcc echo_epollserv.c -o serv
 
 运行结果：
 
-![](./01.png)
+![](./images/01.png)
 
 可以看出运行结果和以前 select 实现的和 fork 实现的结果一样，都可以支持多客户端同时运行。
 
@@ -248,7 +248,7 @@ gcc echo_EPLTserv.c -o serv
 
 运行结果：
 
-![](./02.png)
+![](./images/02.png)
 
 从结果可以看出，每当收到客户端数据时，都会注册该事件，并因此调用 epoll_wait 函数。
 
@@ -271,7 +271,7 @@ gcc echo_EDGEserv.c -o serv
 
 结果：
 
-![](./03.png)
+![](./images/03.png)
 
 从上面的例子看出，接收到客户端的消息时，只输出一次「return epoll_wait」字符串，这证明仅注册了一次事件。
 
@@ -336,7 +336,7 @@ gcc echo_EPETserv.c -o serv
 
 结果：
 
-![](./04.png)
+![](./images/04.png)
 
 #### 17.2.5 条件触发和边缘触发孰优孰劣
 
@@ -346,7 +346,7 @@ gcc echo_EPETserv.c -o serv
 
 下面是边缘触发的图
 
-![](./05.png)
+![](./images/05.png)
 
 运行流程如下：
 
