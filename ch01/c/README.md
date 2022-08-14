@@ -2,74 +2,109 @@
 
 ### 1.1 理解网络编程和套接字
 
-### 1.1.1 网络编程中接受连接请求的套接字创建过程
+#### 1.1.1 构建打电话套接字
 
-1. 第一步：调用 socket 函数创建套接字
+以电话机打电话的方式来理解套接字。
 
-   ```c
-   #include <sys/socket.h>
-   int socket(int domain, int type, int protocol);
-   // 成功时返回文件描述符，失败时返回-1
-   ```
+**调用 socket 函数（安装电话机）时进行的对话**：
 
-2. 第二步：调用 bind 函数分配IP地址和端口号
+> 问：接电话需要准备什么？
+>
+> 答：当然是电话机。
 
-   ````c
-   #include <sys/socket.h>
-   int bind(int sockfd, struct sockaddr *myaddr, socklen_t addrlen);
-   // 成功时返回0，失败时返回-1
-   ````
+有了电话机才能安装电话，于是就要准备一个电话机，下面函数相当于电话机的套接字。
 
-3. 第三步：调用 listen 函数转换为可接受请求状态
+```c
+#include <sys/socket.h>
+int socket(int domain, int type, int protocol);
+// 成功时返回文件描述符，失败时返回-1
+```
 
-   ```c
-   #include <sys/socket.h>
-   int listen(int sockfd, int backlog);
-   // 成功时返回0，失败时返回-1
-   ```
+**调用 bind 函数（分配电话号码）时进行的对话**：
 
-4. 第四步：调用 accept 函数受理套接字请求
+> 问：请问我的电话号码是多少
+>
+> 答：我的电话号码是123-1234
 
-   ```c
-   #include <sys/socket.h>
-   int accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen);
-   //成功时返回文件描述符，失败时返回-1
-   ```
+套接字同样如此。就想给电话机分配电话号码一样，利用以下函数给创建好的套接字分配地址信息（IP地址和端口号）：
+
+```c
+#include <sys/socket.h>
+int bind(int sockfd, struct sockaddr *myaddr, socklen_t addrlen);
+// 成功时返回0，失败时返回-1
+```
+
+调用 bind 函数给套接字分配地址之后，就基本完成了所有的准备工作。接下来是需要连接电话线并等待来电。
+
+**调用 listen 函数（连接电话线）时进行的对话**：
+
+> 问：已架设完电话机后是否只需链接电话线？
+>
+> 答：对，只需要连接就能接听电话。
+
+一连接电话线，电话机就可以转换为可接听状态，这时其他人可以拨打电话请求连接到该机。同样，需要把套接字转化成可接受连接状态。
+
+```c
+#include <sys/socket.h>
+int listen(int sockfd, int backlog);
+// 成功时返回0，失败时返回-1
+```
+
+连接好电话线以后，如果有人拨打电话就响铃，拿起话筒才能接听电话。
+
+**调用 accept 函数（拿起话筒）时进行的对话**：
+
+> 问：电话铃响了，我该怎么办？
+>
+> 答：接听啊。
+
+```c
+#include <sys/socket.h>
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+// 成功时返回文件描述符，失败时返回-1
+```
+
+网络编程中和接受连接请求的套接字创建过程可整理如下：
+
+1. 第一步：调用 socket 函数创建套接字。
+2. 第二步：调用 bind 函数分配IP地址和端口号。
+3. 第三步：调用 listen 函数转换为可接受请求状态。
+4. 第四步：调用 accept 函数受理套接字请求。
 
 #### 1.1.2  编写`Hello World`套接字程序
 
-1. **服务端**：
+**服务端**：
 
-   服务器端（server）是能够受理连接请求的程序。下面构建服务端以验证之前提到的函数调用过程，该服务器端收到连接请求后向请求者返回`Hello World!`答复。除各种函数的调用顺序外，我们还未涉及任何实际编程。因此，阅读代码时请重点关注套接字相关的函数调用过程，不必理解全过程。
+服务器端（server）是能够受理连接请求的程序。下面构建服务端以验证之前提到的函数调用过程，该服务器端收到连接请求后向请求者返回`Hello World!`答复。除各种函数的调用顺序外，我们还未涉及任何实际编程。因此，阅读代码时请重点关注套接字相关的函数调用过程，不必理解全过程。
 
-   服务器端代码请参见：[hello_server.c](./hello_server.c)
+服务器端代码请参见：[hello_server.c](./hello_server.c)
 
-2. **客户端**：
+**客户端**：
 
-   客户端程序只有`调用 socket 函数创建套接字` 和 `调用 connect 函数向服务端发送连接请求`这两个步骤，下面给出客户端，需要查看以下两方面的内容：
+客户端程序只有`调用 socket 函数创建套接字` 和 `调用 connect 函数向服务端发送连接请求`这两个步骤，下面给出客户端，需要查看以下两方面的内容：
 
-   1. 调用 socket 函数 和 connect 函数
-   2. 与服务端共同运行以收发字符串数据
+1. 调用 socket 函数 和 connect 函数
+2. 与服务端共同运行以收发字符串数据
 
-   客户端代码请参见：[hello_client.c](./hello_client.c)
+客户端代码请参见：[hello_client.c](./hello_client.c)
 
-3. **编译**：
+**编译**：
 
-   分别对客户端和服务端程序进行编译：
+分别对客户端和服务端程序进行编译：
 
-   ```shell
-   gcc hello_server.c -o hserver
-   gcc hello_client.c -o hclient
-   ```
+```shell
+gcc hello_server.c -o hserver
+gcc hello_client.c -o hclient
+```
 
-4. **运行**：
+**运行**：
 
-   ```shell
-   ./hserver 9190
-   ./hclient 127.0.0.1 9190
-   ```
+```shell
+./hserver 9190
+./hclient 127.0.0.1 9190
+```
 
-   运行的时候，首先再 9190 端口启动服务，然后 heserver 就会一直等待客户端进行响应，当客户端监听位于本地的 IP 为 127.0.0.1 的地址的9190端口时，客户端就会收到服务端的回应，输出`Hello World!`
+运行的时候，首先再 9190 端口启动服务，然后 heserver 就会一直等待客户端进行响应，当客户端监听位于本地的 IP 为 127.0.0.1 的地址的9190端口时，客户端就会收到服务端的回应，输出`Hello World!`
 
 ### 1.2 基于 Linux 的文件操作
 
