@@ -26,3 +26,40 @@ laddr：（local address）表示本地的IP地址及端口
 - unix：代表 Unix 通信域下的一种内部 socket 协议，以 SOCK_STREAM 为 socket 类型；
 - unixgram：代表 Unix 通信域下的一种内部 socket 协议，以 SOCK_DGRAM 为 socket 类型；
 - unixpacket：代表 Unix 通信域下的一种内部 socket 协议，以 SOCK_SEQPACKET 为 socket 类型；
+
+### 协议的最终选择
+
+TCP 套接字：
+
+```go
+listener, _ := net.Listen("tcp4", "127.0.0.1:9190")
+```
+
+UDP 套接字：
+
+```go
+listener, _ := net.ListenPacket("udp4", "127.0.0.1:9190")
+```
+
+### 面向连接的套接字：TCP 套接字示例
+
+需要对第一章的代码做出修改，修改好的代码如下：
+
+- [tcp_client.go](./tcp_client.go)
+- [tcp_server.go](./tcp_server.go)
+
+编译运行：
+
+```shell
+go run ./tcp_server.go :9190
+go run ./tcp_client.go 127.0.0.1 9190
+```
+
+结果：
+
+```
+Message from server: hello world 
+Function read call count: 11 
+```
+
+从运行结果可以看出服务端发送了 11 字节的数据，客户端调用 11 次 Read 方法进行读取。
