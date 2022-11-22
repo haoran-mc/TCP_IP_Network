@@ -6,6 +6,8 @@
 
 其中 C 代码由 [riba2534/TCP-IP-NetworkNote](https://github.com/riba2534/TCP-IP-NetworkNote) 仓库提供。
 
+如果在阅读本笔记的过程中发现错别字，及 bug ，请向本项目提交 PR。
+
 <!-- ## 目录 -->
 
 | 目录 | C                                        | Go                                        |
@@ -30,7 +32,7 @@
 | ch18 | [多线程服务器端的实现](./ch18/c/)        | [多协程服务器端的实现](./ch18/go/)        |
 | ch24 | [制作HTTP服务器端](./ch24/c/)            | [制作HTTP服务器端](./ch24/go/)            |
 
-拓展的学习笔记：
+## 笔记整理：
 
 - [等待goroutine完成任务](./notes/GO_等待goroutine完成任务.md)
 
